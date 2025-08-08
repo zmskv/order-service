@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func InitRoutes(r *gin.Engine, orderService interfaces.OrderService, logger zap.Logger) {
+func InitRoutes(r *gin.Engine, orderService interfaces.OrderService, logger *zap.Logger) {
 	orderHandler := handlers.NewOrderHandler(orderService, logger)
 
 	order := r.Group("/order")
