@@ -21,13 +21,13 @@ func NewOrderHandler(service interfaces.OrderService, logger *zap.Logger) *Order
 func (h *OrderHandler) GetByID(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "error invalid request")
+		response.NewErrorResponse(c, http.StatusBadRequest, "invalid request")
 		return
 	}
 
 	order, err := h.service.GetByID(c.Request.Context(), id)
 	if err != nil {
-		response.NewErrorResponse(c, http.StatusNotFound, "error not found")
+		response.NewErrorResponse(c, http.StatusNotFound, "order not found")
 		return
 	}
 
