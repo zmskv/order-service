@@ -9,6 +9,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var ErrOrderNotFound = errors.New("order not found")
+
 type InMemoryRepository struct {
 	cache  *lru.Cache[string, entity.Order]
 	logger *zap.Logger
@@ -33,8 +35,8 @@ func (r *InMemoryRepository) Save(ctx context.Context, order entity.Order) error
 func (r *InMemoryRepository) Get(ctx context.Context, uid string) (entity.Order, error) {
 	order, ok := r.cache.Get(uid)
 	if !ok {
-		r.logger.Info("Order not found", zap.String("order_uid", uid))
-		return entity.Order{}, errors.New("order not found")
+		r.logger.Info("Order not found in cache", zap.String("order_uid", uid))
+		return entity.Order{}, ErrOrderNotFound
 	}
 	return order, nil
 }

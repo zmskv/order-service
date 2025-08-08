@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -9,6 +11,8 @@ import (
 	"github.com/zmskv/order-service/internal/infrastructure/repository/postgres/dto"
 	"go.uber.org/zap"
 )
+
+var ErrOrderNotFound = errors.New("order not found")
 
 type orderRepository struct {
 	db     *sqlx.DB
@@ -85,15 +89,19 @@ func (r *orderRepository) Get(ctx context.Context, orderUID string) (entity.Orde
 	var itemsModel []dto.ItemModel
 
 	err := r.db.GetContext(ctx, &orderModel, `
-		SELECT * FROM orders WHERE order_uid = $1
-	`, orderUID)
+        SELECT * FROM orders WHERE order_uid = $1
+    `, orderUID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			r.logger.Info("Order not found in database", zap.String("order_uid", orderUID))
+			return entity.Order{}, ErrOrderNotFound
+		}
 		return entity.Order{}, fmt.Errorf("get order: %w", err)
 	}
 
 	err = r.db.SelectContext(ctx, &itemsModel, `
-		SELECT * FROM items WHERE order_uid = $1
-	`, orderUID)
+        SELECT * FROM items WHERE order_uid = $1
+    `, orderUID)
 	if err != nil {
 		return entity.Order{}, fmt.Errorf("get order items: %w", err)
 	}

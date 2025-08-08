@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zmskv/order-service/internal/domain/order/interfaces"
+	"github.com/zmskv/order-service/internal/infrastructure/repository/postgres"
 	"github.com/zmskv/order-service/internal/infrastructure/response"
 	"go.uber.org/zap"
 )
@@ -19,7 +21,7 @@ func NewOrderHandler(service interfaces.OrderService, logger *zap.Logger) *Order
 }
 
 func (h *OrderHandler) GetByID(c *gin.Context) {
-	id := c.Query("id")
+	id := c.Param("id")
 	if id == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "invalid request")
 		return
@@ -27,7 +29,12 @@ func (h *OrderHandler) GetByID(c *gin.Context) {
 
 	order, err := h.service.GetByID(c.Request.Context(), id)
 	if err != nil {
-		response.NewErrorResponse(c, http.StatusNotFound, "order not found")
+		if errors.Is(err, postgres.ErrOrderNotFound) {
+			response.NewErrorResponse(c, http.StatusNotFound, "order not found")
+			return
+		}
+		h.logger.Error("failed to get order", zap.Error(err))
+		response.NewErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 

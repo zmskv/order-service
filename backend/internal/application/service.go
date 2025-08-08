@@ -3,11 +3,13 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/zmskv/order-service/internal/domain/order/entity"
 	"github.com/zmskv/order-service/internal/domain/order/interfaces"
 	"github.com/zmskv/order-service/internal/infrastructure/messaging/kafka"
 	"github.com/zmskv/order-service/internal/infrastructure/messaging/kafka/dto"
+	"github.com/zmskv/order-service/internal/infrastructure/repository/inmemory"
 	"go.uber.org/zap"
 )
 
@@ -70,13 +72,19 @@ func (s *OrderService) GetByID(ctx context.Context, id string) (entity.Order, er
 		return order, nil
 	}
 
-	order, err = s.repo.Get(ctx, id)
-	if err != nil {
-		s.logger.Error("failed to get order in OrderRepo", zap.Error(err))
+	if !errors.Is(err, inmemory.ErrOrderNotFound) {
 		return entity.Order{}, err
 	}
 
-	_ = s.inMemoryRepo.Save(ctx, order)
+	order, err = s.repo.Get(ctx, id)
+	if err != nil {
+		return entity.Order{}, err
+	}
+
+	err = s.inMemoryRepo.Save(ctx, order)
+	if err != nil {
+		return entity.Order{}, err
+	}
 
 	return order, nil
 }
