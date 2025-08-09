@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Поиск информации о заказе</title>
+    <style>
+        /* Сброс базовых стилей */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 15px;
+            font-size: 1.1rem;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+            outline-offset: 2px;
+            outline-color: transparent;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline-color: #3498db;
+            background-color: #f0faff;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgb(52 152 219 / 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            box-shadow: 0 6px 14px rgb(41 128 185 / 0.6);
+        }
+
+        button:active {
+            background-color: #1c5980;
+            box-shadow: 0 2px 6px rgb(28 89 128 / 0.7);
+        }
+
+        #result {
+            min-height: 120px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgb(0 0 0 / 0.1);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            white-space: pre-wrap;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            line-height: 1.5;
+            user-select: text;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-weight: 600;
+            background-color: #fdecea;
+            border: 1px solid #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Поиск информации о заказе</h2>
+
+    <label for="orderId">Введите ID заказа:</label>
+    <div class="input-group">
+        <input type="text" id="orderId" placeholder="например, 12345" autocomplete="off" />
+        <button id="fetchBtn">Получить заказ</button>
+    </div>
+
+    <div id="result" aria-live="polite"></div>
+
+    <script>
+        document.getElementById('fetchBtn').addEventListener('click', async () => {
+            const orderId = document.getElementById('orderId').value.trim();
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = '';
+            resultEl.className = '';
+            if (!orderId) {
+                resultEl.textContent = 'Пожалуйста, введите ID заказа.';
+                resultEl.classList.add('error');
+                return;
+            }
+            try {
+                const response = await fetch(`http://localhost:8000/order/${encodeURIComponent(orderId)}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resultEl.textContent = `Ошибка при получении данных: ${err.message}`;
+                resultEl.classList.add('error');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

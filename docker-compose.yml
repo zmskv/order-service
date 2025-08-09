@@ -18,6 +18,17 @@ services:
     networks:
       - order-service-network
 
+  frontend:
+    image: nginx:alpine
+    container_name: frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "3000:80"
+    networks:
+      - order-service-network
+
+
   db:
     image: postgres
     container_name: postgres
