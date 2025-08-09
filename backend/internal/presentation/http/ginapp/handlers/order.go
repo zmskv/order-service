@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/zmskv/order-service/docs"
 	"github.com/zmskv/order-service/internal/domain/order/interfaces"
 	"github.com/zmskv/order-service/internal/infrastructure/repository/postgres"
 	"github.com/zmskv/order-service/internal/infrastructure/response"
@@ -20,6 +21,17 @@ func NewOrderHandler(service interfaces.OrderService, logger *zap.Logger) *Order
 	return &OrderHandler{service: service, logger: logger.Named("handler")}
 }
 
+// GetOrderByID godoc
+// @Summary Get order by ID
+// @Description Get order by ID
+// @Tags order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {object} docs.SuccessResponse{data=docs.Order} "Order found"
+// @Failure 400 {object} docs.ErrorResponse "Invalid request"
+// @Failure 404 {object} docs.ErrorResponse "Order not found"
+// @Router /order/{id} [get]
 func (h *OrderHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -38,5 +50,5 @@ func (h *OrderHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response.NewSuccessResponse(c, http.StatusOK, "success", order)
+	response.NewSuccessResponse(c, http.StatusOK, "Order found", order)
 }

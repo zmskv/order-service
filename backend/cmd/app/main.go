@@ -11,6 +11,11 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title Order Service API
+// @version 1.0
+// @description This is the API documentation for the Order Service.
+// @host localhost:8000
+// @BasePath /
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

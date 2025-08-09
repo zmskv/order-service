@@ -1,0 +1,157 @@
+basePath: /
+definitions:
+  docs.Delivery:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      region:
+        type: string
+      zip:
+        type: string
+    type: object
+  docs.ErrorResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  docs.Item:
+    properties:
+      brand:
+        type: string
+      chrt_id:
+        type: integer
+      name:
+        type: string
+      nm_id:
+        type: integer
+      price:
+        type: integer
+      rid:
+        type: string
+      sale:
+        type: integer
+      size:
+        type: string
+      status:
+        type: integer
+      total_price:
+        type: integer
+      track_number:
+        type: string
+    type: object
+  docs.Order:
+    properties:
+      customer_id:
+        type: string
+      date_created:
+        type: string
+      delivery:
+        $ref: '#/definitions/docs.Delivery'
+      delivery_service:
+        type: string
+      entry:
+        type: string
+      internal_signature:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/docs.Item'
+        type: array
+      locale:
+        type: string
+      oof_shard:
+        type: string
+      order_uid:
+        type: string
+      payment:
+        $ref: '#/definitions/docs.Payment'
+      shardkey:
+        type: string
+      sm_id:
+        type: integer
+      track_number:
+        type: string
+    type: object
+  docs.Payment:
+    properties:
+      amount:
+        type: integer
+      bank:
+        type: string
+      currency:
+        type: string
+      custom_fee:
+        type: integer
+      delivery_cost:
+        type: integer
+      goods_total:
+        type: integer
+      payment_dt:
+        type: integer
+      provider:
+        type: string
+      request_id:
+        type: string
+      transaction:
+        type: string
+    type: object
+  docs.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is the API documentation for the Order Service.
+  title: Order Service API
+  version: "1.0"
+paths:
+  /order/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get order by ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order found
+          schema:
+            allOf:
+            - $ref: '#/definitions/docs.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/docs.Order'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/docs.ErrorResponse'
+        "404":
+          description: Order not found
+          schema:
+            $ref: '#/definitions/docs.ErrorResponse'
+      summary: Get order by ID
+      tags:
+      - order
+swagger: "2.0"
