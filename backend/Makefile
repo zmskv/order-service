@@ -4,8 +4,8 @@ ifneq (,$(wildcard .env))
 endif
 
 MIGRATE=migrate -path ./migrations -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE)"
-sourceToMock=internal/domain/user/interfaces/repository.go
-destinationToMock=internal/domain/user/mocks/mock_repository.go
+sourceToMock=internal/domain/order/interfaces/service.go
+destinationToMock=internal/domain/order/mocks/mock_service.go
 
 RUN_DIR = ./cmd/app
 
